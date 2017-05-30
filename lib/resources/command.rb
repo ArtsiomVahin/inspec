@@ -23,12 +23,21 @@ module Inspec::Resources
 
     attr_reader :command
 
-    def initialize(cmd)
+    def initialize(cmd, sec_cmd= nil)
       @command = cmd
+      @sec_command = sec_cmd
+      @log_dummy_cmd = @sec_command.nil? ? false : true
+
+      # swap what is executed, and what will be shown
+      @command,@sec_command = @sec_command, @command if @log_dummy_cmd
     end
 
     def result
-      @result ||= inspec.backend.run_command(@command)
+      if @log_dummy_cmd
+        @result ||= inspec.backend.run_command(@sec_command)
+      else
+        @result ||= inspec.backend.run_command(@command)
+      end
     end
 
     def stdout
